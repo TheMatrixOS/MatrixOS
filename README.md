@@ -40,9 +40,18 @@ Extract the folder anywhere on your PC.
 
 Open the folder, double-click MatrixOS, and you are in.
 
-🛠️ Technical Specifications
-Kernel: FastAPI Backend with V6 Auto-Routing.
+---
 
-Rendering: Native Display Layer for Gamescope/Wayland stability.
+## 🧪 Fuel the Architect
 
-Dependencies: All core requirements bundled for standalone execution.
+> "The Architect is limited by the hardware of the current reality."
+
+Matrix OS is a resource-heavy project, and currently, it is being forged on a very limited, low-spec computer. This makes testing high-end AI models and rendering complex UI modules a slow process.
+
+If you believe this project is worth your time and mine, and you’d like to see the simulation expand with better features and faster development, consider fueling the Architect. Your support will go directly toward a better development rig so I can continue building, testing, and perfecting the Matrix for everyone.
+
+**[⚡ Support the Project via GoFundMe](https://gofund.me/ce7c3320e)**
+
+*Every donation helps bypass the hardware limitations and keeps the code flowing. See you in the grid.*
+
+---
