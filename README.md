@@ -12,7 +12,7 @@ Matrix OS is the ultimate all-in-one digital environment for your Steam Deck and
 🔍 Web Synthesizer: Search the live web and get instant, summarized main points without ad-filled distractions.
 
 🛰️ Satellite Uplink: Tap into real-time global weather tracking and tactical mapping to see exactly what is happening outside the simulation.
-
+link to view the images of the Matrix OS https://imgur.com/gallery/matrix-os-CBpDxZe
 
 🔌 How to Jack In (Installation)
 We made this as simple as possible. You don't need to be a hacker to use the Matrix.
