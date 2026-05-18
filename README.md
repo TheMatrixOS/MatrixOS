@@ -21,6 +21,8 @@ Link to view the images of the Matrix OS https://imgur.com/gallery/matrix-os-CBp
 
 Link to Youtube showing the Matrix OS https://www.youtube.com/watch?v=9ZSkKrpH98I .
 
+Link to my X Page https://x.com/TheMatrixos1 .
+
 🔌 How to Jack In (Installation)
 We made this as simple as possible. You don't need to be a hacker to use the Matrix.
 
