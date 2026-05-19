@@ -82,7 +82,7 @@ sudo setcap cap_net_raw,cap_net_admin,cap_net_bind_service+eip /usr/bin/nmap >/d
 sudo setcap cap_net_raw,cap_net_admin=eip /usr/bin/tcpdump >/dev/null 2>&1
 
 # --- DOWNLOAD THE MATRIX OS CORE BINARIES FROM MEGA ---
-DOWNLOAD_URL="https://mega.nz/file/s64RiYzI#fdBHtLUc3k1kbJhVpjuLIzD7RLKpzlCnt-idv5E2dh4"
+DOWNLOAD_URL="https://mega.nz/file/c7BGVCbB#OpkBkKCgJjv2LE6NQH7i5zutSk8X0kFD9-lxwaJKUIc"
 
 if [ ! -d "MatrixOS" ]; then
     echo -e "${GREEN}> DOWNLOADING MATRIX OS NEURAL CORE FROM MEGA... (Standby, fetching 8.1GB payload)${NC}"
