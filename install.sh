@@ -46,7 +46,11 @@ else
 fi
 
 echo ""
-echo -e "${GREEN}> SCANNING ARCHITECTURE...${NC}"
+echo -e "${GREEN}> @@ -1,3 +1,7 @@
+> [!CAUTION]
+> ### MATRIX OS IS BEING UPDATED !
+> **The current `install.sh` will not work at this time. The Matrix OS is currently getting Updated.**
+${NC}"
 
 # --- DETECT THE LINUX OPERATING SYSTEM ---
 if [ -f /etc/os-release ]; then
