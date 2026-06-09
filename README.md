@@ -7,8 +7,10 @@ Matrix OS is the ultimate all-in-one digital environment for your Steam Deck and
 🌐 Infinite AI Library: Directly search for and download any AI model listed on HuggingFace straight into your local OS sandbox.
 
 
-Coming soon !
-🎨 The Creator's Foundry:* Generate stunning images, create videos, and compose original music using AI—all entirely offline and 100% free.
+
+
+
+🎨 Coming soon ! The Creator's Foundry:* Generate stunning images, create videos, and compose original music using AI—all entirely offline and 100% free.
 
 💻 Cyber-Deck Architect: Tell the AI what you want, and it will build entire functional applications or scripts directly on your desktop.
 
