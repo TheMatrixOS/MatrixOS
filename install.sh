@@ -26,7 +26,7 @@ done
 clear
 
 echo -e "${GREEN}========================================================================${NC}"
-echo -e "${WHITE}                      MATRIX OS // TACTICAL SUBNET INSTALLER            ${NC}"
+echo -e "${WHITE}                    WELCOME TO THE MATRIX OS                            ${NC}"
 echo -e "${GREEN}========================================================================${NC}"
 echo ""
 echo -e "> SECURE UPLINK ESTABLISHED."
@@ -82,8 +82,7 @@ sudo setcap cap_net_raw,cap_net_admin,cap_net_bind_service+eip /usr/bin/nmap >/d
 sudo setcap cap_net_raw,cap_net_admin=eip /usr/bin/tcpdump >/dev/null 2>&1
 
 # --- DOWNLOAD THE MATRIX OS CORE BINARIES FROM MEGA ---
-DOWNLOAD_URL="https://mega.nz/file/E7xlAZRJ#bgyr68mf43jPGIzmqCLroeChy15GCKgdHo4igYWtJTU"
-
+DOWNLOAD_URL="https://mega.nz/file/E7xlAZRJ#bgyr68mf43jPGIzmqCLroeChy15GCKgdHo4igYWtJTU" 
 if [ ! -d "MatrixOS" ]; then
 echo -e "${GREEN}> DOWNLOADING MATRIX OS NEURAL CORE FROM MEGA... (Standby, fetching 8.1GB payload)${NC}"
 
