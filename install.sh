@@ -70,6 +70,7 @@ elif [[ "$OS" =~ ^(steamos|arch|manjaro)$ ]]; then
         sudo pacman-key --populate archlinux holo || true
     fi
     
+    # NOTE: megatools is omitted here to prevent pacman target errors
     sudo pacman -Sy --noconfirm nmap tcpdump wget unzip curl
     
     # Install megatools static binary if not present
