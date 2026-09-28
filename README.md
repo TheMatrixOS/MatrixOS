@@ -28,9 +28,9 @@ Link to my X Page https://x.com/TheMatrixos1 .
 We made this as simple as possible. You don't need to be a hacker to use the Matrix.
 
 ⚡ Quick Start: One-Command Installation
-Ready to leave the simulation? Open your Konsole (Terminal) on the Steam Deck or any Linux machine and paste the following command:
+Ready to leave the simulation? Open your Browser and download the Matrix OS Now using the link blow
 
-curl -sL https://raw.githubusercontent.com/TheMatrixOS/MatrixOS/main/install.sh | bash
+https://mega.nz/file/2LhBSRLQ#-DwZ8vn4P7O9Dj0rF5B9BN6C-6tXWEeD9Za7wtr3-Dk
 
  SteamOS Game Mode (For Steam Deck)
  The system is hard-coded for a 1280x800 immersive experience.
