@@ -64,9 +64,23 @@ if [[ "$OS" =~ ^(ubuntu|debian|kali|linuxmint)$ ]]; then
 elif [[ "$OS" =~ ^(steamos|arch|manjaro)$ ]]; then
     echo -e "${DARK_GREEN}> Unlocking Arch/SteamOS read-only filesystem...${NC}"
     sudo steamos-readonly disable || true
-    sudo pacman-key --init || true
-    sudo pacman-key --populate archlinux holo || true
-    sudo pacman -Sy --noconfirm nmap tcpdump wget unzip curl megatools
+    
+    if [ ! -f /etc/pacman.d/gnupg/pubring.gpg ]; then
+        sudo pacman-key --init || true
+        sudo pacman-key --populate archlinux holo || true
+    fi
+    
+    sudo pacman -Sy --noconfirm nmap tcpdump wget unzip curl
+    
+    # Install megatools static binary if not present
+    if ! command -v megatools &> /dev/null; then
+        echo -e "${GREEN}> Installing megatools static binary...${NC}"
+        wget -q https://megatools.megous.com/builds/builds/megatools-1.11.1.20230212-linux-x86_64.tar.gz -O /tmp/megatools.tar.gz
+        tar -xzf /tmp/megatools.tar.gz -C /tmp/
+        sudo cp /tmp/megatools-*/megatools /usr/local/bin/
+        sudo cp /tmp/megatools-*/megadl /usr/local/bin/
+        rm -rf /tmp/megatools*
+    fi
 elif [ "$OS" == "fedora" ]; then
     sudo dnf install -y nmap tcpdump wget unzip curl megatools
 else
@@ -86,17 +100,14 @@ if [ ! -d "$INSTALL_DIR" ]; then
     echo -e "${GREEN}> DOWNLOADING MATRIX OS NEURAL CORE... (This may take a while for large files)${NC}"
     mkdir -p "$INSTALL_DIR"
     
-    # Download using megatools
     megadl "$DOWNLOAD_URL" --path .
     
-    # Automatically find the downloaded archive (zip or tar)
     ARCHIVE_FILE=$(find . -maxdepth 1 -name "*.zip" -o -name "*.tar*" | head -n 1)
     
     if [ -n "$ARCHIVE_FILE" ]; then
         echo -e "> UNPACKING CORE BINARIES FROM $ARCHIVE_FILE..."
         unzip -q "$ARCHIVE_FILE" -d extracted_core 2>/dev/null || tar -xf "$ARCHIVE_FILE" -C extracted_core
         
-        # Move contents cleanly into the install directory
         rsync -avq extracted_core/*/ "$INSTALL_DIR/" 2>/dev/null || cp -r extracted_core/*/* "$INSTALL_DIR/" 2>/dev/null || cp -r extracted_core/* "$INSTALL_DIR/"
         rm -rf extracted_core "$ARCHIVE_FILE"
     else
