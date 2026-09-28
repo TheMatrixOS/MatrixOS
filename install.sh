@@ -101,24 +101,34 @@ if [ ! -d "$INSTALL_DIR" ]; then
     echo -e "${GREEN}> DOWNLOADING MATRIX OS NEURAL CORE... (Standby)${NC}"
     mkdir -p "$INSTALL_DIR"
     
-    if command -v megadl &> /dev/null; then
-        megadl "$DOWNLOAD_URL" --path . || { echo -e "${RED}[ERROR] megadl download failed.${NC}"; exit 1; }
-    else
-        echo -e "${RED}[ERROR] megadl command not found.${NC}"
-        exit 1
-    fi
+    # Run megadl and show all files in the directory immediately after to debug
+    megadl "$DOWNLOAD_URL" --path .
     
-    ARCHIVE_FILE=$(find . -maxdepth 1 \( -name "*.zip" -o -name "*.rar" -o -name "*.tar*" \) | head -n 1)
+    echo -e "${WHITE}> Contents of directory after download:${NC}"
+    ls -la
+    
+    # Look for any newly downloaded file (excluding directories)
+    ARCHIVE_FILE=$(find . -maxdepth 1 -type f ! -name "*.sh" | head -n 1)
     
     if [ -n "$ARCHIVE_FILE" ]; then
-        echo -e "> UNPACKING CORE BINARIES FROM $ARCHIVE_FILE..."
-        unzip -q "$ARCHIVE_FILE" -d extracted_core 2>/dev/null || tar -xf "$ARCHIVE_FILE" -C extracted_core || true
+        echo -e "> FOUND FILE: $ARCHIVE_FILE. UNPACKING..."
+        
+        # Determine extraction method based on file extension
+        if [[ "$ARCHIVE_FILE" == *.zip ]]; then
+            unzip -q "$ARCHIVE_FILE" -d extracted_core 2>/dev/null || true
+        elif [[ "$ARCHIVE_FILE" == *.tar* ]] || [[ "$ARCHIVE_FILE" == *.tgz ]]; then
+            mkdir -p extracted_core
+            tar -xf "$ARCHIVE_FILE" -C extracted_core 2>/dev/null || true
+        else
+            # Fallback generic extraction or direct move if it's already the binary
+            mkdir -p extracted_core
+            mv "$ARCHIVE_FILE" extracted_core/
+        fi
         
         rsync -avq extracted_core/*/ "$INSTALL_DIR/" 2>/dev/null || cp -r extracted_core/*/* "$INSTALL_DIR/" 2>/dev/null || cp -r extracted_core/* "$INSTALL_DIR/" 2>/dev/null || true
-        rm -rf extracted_core "$ARCHIVE_FILE"
+        rm -rf extracted_core
     else
-        echo -e "${RED}[ERROR] Download completed, but no archive was found in the current directory.${NC}"
-        ls -la
+        echo -e "${RED}[ERROR] Megadl finished, but no target file was detected.${NC}"
         exit 1
     fi
 else
