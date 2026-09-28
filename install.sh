@@ -1,150 +1,49 @@
 #!/bin/bash
 
-# Exit immediately if a command exits with a non-zero status
-set -e
+echo "=== MatrixOS Automated Installer ==="
 
-# --- ANSI COLOR CODES ---
-GREEN='\033[38;5;46m'
-DARK_GREEN='\033[38;5;22m'
-WHITE='\033[1;37m'
-RED='\033[1;31m'
-NC='\033[0m' 
-
-clear
-
-# --- THE MATRIX RAIN ANIMATION ---
-echo -e "${GREEN}Waking up the local host...${NC}"
-sleep 1
-
-for i in {1..20}; do
-    rand_string=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9!@#$%^&*()' | fold -w $(tput cols) | head -n 1)
-    if (( i % 3 == 0 )); then
-        echo -e "${WHITE}${rand_string:0:10}${GREEN}${rand_string:10}"
-    else
-        echo -e "${DARK_GREEN}${rand_string}"
+# 1. Check for dependencies (zenity, unzip, megatools)
+if ! command -v zenity &> /dev/null || ! command -v megadl &> /dev/null; then
+    echo "Installing required dependencies..."
+    if command -v apt &> /dev/null; then
+        sudo apt update && sudo apt install zenity unzip megatools -y
+    elif command -v dnf &> /dev/null; then
+        sudo dnf install zenity unzip megatools -y
+    elif command -v pacman &> /dev/null; then
+        sudo pacman -S zenity unzip megatools --noconfirm
     fi
-    sleep 0.03
-done
+fi
 
-clear
+# 2. Open GUI folder picker for installation path
+DEST_DIR=$(zenity --file-selection --directory --title="Select Where to Install MatrixOS")
 
-echo -e "${GREEN}========================================================================${NC}"
-echo -e "${WHITE}                    WELCOME TO THE MATRIX OS                            ${NC}"
-echo -e "${GREEN}========================================================================${NC}"
-echo ""
-echo -e "> SECURE UPLINK ESTABLISHED."
-echo -e "> INITIATING SETUP..."
-echo ""
-
-# --- CHECK FOR SUDO ACCESS PROPERLY ---
-echo -e "${WHITE}[INFO] Checking for administrator privileges...${NC}"
-if ! sudo -v; then
-    echo -e "${RED}[FATAL] Administrator privileges are required to install dependencies.${NC}"
+if [ -z "$DEST_DIR" ]; then
+    echo "Installation cancelled by user."
     exit 1
 fi
 
-echo ""
-echo -e "${GREEN}> SCANNING ARCHITECTURE...${NC}"
+echo "Installing to: $DEST_DIR"
+cd "$DEST_DIR" || exit 1
 
-# --- DETECT THE LINUX OPERATING SYSTEM ---
-if [ -f /etc/os-release ]; then
-    . /etc/os-release
-    OS=$ID
-else
-    OS="unknown"
+# 3. Download MatrixOS from MEGA link
+MEGA_URL="https://mega.nz/file/2LhBSRLQ#-DwZ8vn4P7O9Dj0rF5B9BN6C-6tXWEeD9Za7wtr3-Dk"
+echo "Downloading MatrixOS package..."
+megadl "$MEGA_URL"
+
+# 4. Find the zip and extract it
+ZIP_FILE=$(find . -maxdepth 1 -name "*.zip" | head -n 1)
+if [ -z "$ZIP_FILE" ]; then
+    ZIP_FILE="MatrixOS.zip"
 fi
 
-echo -e "> DETECTED OS: ${WHITE}$OS${NC}"
-echo -e "> INSTALLING REQUIRED DEPENDENCIES..."
-
-# --- INSTALL SYSTEM DEPENDENCIES ---
-if [[ "$OS" =~ ^(ubuntu|debian|kali|linuxmint)$ ]]; then
-    sudo apt-get update -y
-    sudo apt-get install -y nmap tcpdump wget unzip curl libgl1-mesa-glx libxcb-cursor0 megatools
-elif [[ "$OS" =~ ^(steamos|arch|manjaro)$ ]]; then
-    echo -e "${DARK_GREEN}> Unlocking Arch/SteamOS read-only filesystem...${NC}"
-    sudo steamos-readonly disable || true
+if [ -f "$ZIP_FILE" ]; then
+    echo "Extracting MatrixOS..."
+    unzip -q "$ZIP_FILE"
+    echo "Extraction complete!"
     
-    if [ ! -f /etc/pacman.d/gnupg/pubring.gpg ]; then
-        sudo pacman-key --init || true
-        sudo pacman-key --populate archlinux holo || true
-    fi
-    
-    # Install standard pacman packages (megatools excluded for package managers)
-    sudo pacman -Sy --noconfirm nmap tcpdump wget unzip curl
-    
-    # Install megatools static binary if not present
-    if ! command -v megatools &> /dev/null; then
-        echo -e "${GREEN}> Installing megatools static binary...${NC}"
-        wget -q https://megatools.megous.com/builds/builds/megatools-1.11.1.20230212-linux-x86_64.tar.gz -O /tmp/megatools.tar.gz
-        tar -xzf /tmp/megatools.tar.gz -C /tmp/
-        sudo cp /tmp/megatools-*/megatools /usr/local/bin/
-        sudo cp /tmp/megatools-*/megadl /usr/local/bin/
-        rm -rf /tmp/megatools*
-    fi
-elif [ "$OS" == "fedora" ]; then
-    sudo dnf install -y nmap tcpdump wget unzip curl megatools
+    # 5. Open the folder automatically
+    xdg-open "$DEST_DIR"
 else
-    echo -e "${RED}[WARNING] Unknown Architecture. Please manually install: nmap, tcpdump, unzip, megatools${NC}"
-fi
-
-# --- GRANT CAPABILITIES ---
-echo -e "> CONFIGURING NETWORK CAPABILITIES..."
-sudo setcap cap_net_raw,cap_net_admin,cap_net_bind_service+eip /usr/bin/nmap 2>/dev/null || true
-sudo setcap cap_net_raw,cap_net_admin=eip /usr/bin/tcpdump 2>/dev/null || true
-
-# --- DOWNLOAD AND EXTRACT CORE ---
-DOWNLOAD_URL="https://mega.nz/file/2LhBSRLQ#-DwZ8vn4P7O9Dj0rF5B9BN6C-6tXWEeD9Za7wtr3-Dk"
-INSTALL_DIR="MatrixOS"
-
-if [ ! -d "$INSTALL_DIR" ]; then
-    echo -e "${GREEN}> DOWNLOADING MATRIX OS NEURAL CORE... (Standby)${NC}"
-    mkdir -p "$INSTALL_DIR"
-    
-    # Run megadl and show all files in the directory immediately after to debug
-    megadl "$DOWNLOAD_URL" --path .
-    
-    echo -e "${WHITE}> Contents of directory after download:${NC}"
-    ls -la
-    
-    # Look for any newly downloaded file (excluding directories)
-    ARCHIVE_FILE=$(find . -maxdepth 1 -type f ! -name "*.sh" | head -n 1)
-    
-    if [ -n "$ARCHIVE_FILE" ]; then
-        echo -e "> FOUND FILE: $ARCHIVE_FILE. UNPACKING..."
-        
-        # Determine extraction method based on file extension
-        if [[ "$ARCHIVE_FILE" == *.zip ]]; then
-            unzip -q "$ARCHIVE_FILE" -d extracted_core 2>/dev/null || true
-        elif [[ "$ARCHIVE_FILE" == *.tar* ]] || [[ "$ARCHIVE_FILE" == *.tgz ]]; then
-            mkdir -p extracted_core
-            tar -xf "$ARCHIVE_FILE" -C extracted_core 2>/dev/null || true
-        else
-            # Fallback generic extraction or direct move if it's already the binary
-            mkdir -p extracted_core
-            mv "$ARCHIVE_FILE" extracted_core/
-        fi
-        
-        rsync -avq extracted_core/*/ "$INSTALL_DIR/" 2>/dev/null || cp -r extracted_core/*/* "$INSTALL_DIR/" 2>/dev/null || cp -r extracted_core/* "$INSTALL_DIR/" 2>/dev/null || true
-        rm -rf extracted_core
-    else
-        echo -e "${RED}[ERROR] Megadl finished, but no target file was detected.${NC}"
-        exit 1
-    fi
-else
-    echo -e "${DARK_GREEN}> Matrix OS Core directory already exists. Skipping download.${NC}"
-fi
-
-# --- SECURE AND LAUNCH ---
-echo -e "${WHITE}> BOOTING MATRIX OS KERNEL...${NC}"
-cd "$INSTALL_DIR"
-chmod +x MatrixOS 2>/dev/null || true
-chmod +x ollama_engine 2>/dev/null || true
-
-if [ -f "./MatrixOS" ]; then
-    clear
-    ./MatrixOS
-else
-    echo -e "${RED}[ERROR] 'MatrixOS' executable not found in the installation directory.${NC}"
+    zenity --error --text="Download failed: Zip file not found."
     exit 1
 fi
