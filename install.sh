@@ -70,7 +70,7 @@ elif [[ "$OS" =~ ^(steamos|arch|manjaro)$ ]]; then
         sudo pacman-key --populate archlinux holo || true
     fi
     
-    # NOTE: megatools is omitted here to prevent pacman target errors
+    # Install standard pacman packages (megatools excluded for package managers)
     sudo pacman -Sy --noconfirm nmap tcpdump wget unzip curl
     
     # Install megatools static binary if not present
@@ -98,21 +98,27 @@ DOWNLOAD_URL="https://mega.nz/file/2LhBSRLQ#-DwZ8vn4P7O9Dj0rF5B9BN6C-6tXWEeD9Za7
 INSTALL_DIR="MatrixOS"
 
 if [ ! -d "$INSTALL_DIR" ]; then
-    echo -e "${GREEN}> DOWNLOADING MATRIX OS NEURAL CORE... (This may take a while for large files)${NC}"
+    echo -e "${GREEN}> DOWNLOADING MATRIX OS NEURAL CORE... (Standby)${NC}"
     mkdir -p "$INSTALL_DIR"
     
-    megadl "$DOWNLOAD_URL" --path .
+    if command -v megadl &> /dev/null; then
+        megadl "$DOWNLOAD_URL" --path . || { echo -e "${RED}[ERROR] megadl download failed.${NC}"; exit 1; }
+    else
+        echo -e "${RED}[ERROR] megadl command not found.${NC}"
+        exit 1
+    fi
     
-    ARCHIVE_FILE=$(find . -maxdepth 1 -name "*.zip" -o -name "*.tar*" | head -n 1)
+    ARCHIVE_FILE=$(find . -maxdepth 1 \( -name "*.zip" -o -name "*.rar" -o -name "*.tar*" \) | head -n 1)
     
     if [ -n "$ARCHIVE_FILE" ]; then
         echo -e "> UNPACKING CORE BINARIES FROM $ARCHIVE_FILE..."
-        unzip -q "$ARCHIVE_FILE" -d extracted_core 2>/dev/null || tar -xf "$ARCHIVE_FILE" -C extracted_core
+        unzip -q "$ARCHIVE_FILE" -d extracted_core 2>/dev/null || tar -xf "$ARCHIVE_FILE" -C extracted_core || true
         
-        rsync -avq extracted_core/*/ "$INSTALL_DIR/" 2>/dev/null || cp -r extracted_core/*/* "$INSTALL_DIR/" 2>/dev/null || cp -r extracted_core/* "$INSTALL_DIR/"
+        rsync -avq extracted_core/*/ "$INSTALL_DIR/" 2>/dev/null || cp -r extracted_core/*/* "$INSTALL_DIR/" 2>/dev/null || cp -r extracted_core/* "$INSTALL_DIR/" 2>/dev/null || true
         rm -rf extracted_core "$ARCHIVE_FILE"
     else
-        echo -e "${RED}[ERROR] Could not locate the downloaded archive file.${NC}"
+        echo -e "${RED}[ERROR] Download completed, but no archive was found in the current directory.${NC}"
+        ls -la
         exit 1
     fi
 else
